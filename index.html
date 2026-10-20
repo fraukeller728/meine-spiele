@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meine Spiele</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b10;
+    --panel: #14161f;
+    --yellow: #ffc61a;
+    --text: #f3f3f3;
+    --muted: #a9acb8;
+    --display: "Bungee", "Arial Black", Impact, sans-serif;
+    --body: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    line-height: 1.6;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 6vw;
+  }
+  .logo { color: var(--yellow); font-weight: 800; font-size: 1.05rem; text-decoration: none; }
+  nav a { color: var(--text); text-decoration: none; font-weight: 600; font-size: .9rem; margin-left: 22px; }
+  nav a:hover, nav a:focus-visible { color: var(--yellow); }
+
+  .hero {
+    text-align: center;
+    padding: 9vh 6vw 14vh;
+    background:
+      radial-gradient(ellipse at 50% 0%, #1b2a4a 0%, transparent 60%),
+      var(--bg);
+    clip-path: polygon(0 0, 100% 0, 100% 88%, 0 100%);
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 9vw, 5.5rem);
+    line-height: 1.05;
+    margin: 0 0 32px;
+    text-transform: uppercase;
+  }
+  .btn {
+    display: inline-block;
+    background: var(--yellow);
+    color: #111;
+    font-weight: 800;
+    font-size: 1.15rem;
+    padding: 16px 46px;
+    text-decoration: none;
+    transform: skewX(-6deg);
+    transition: transform .15s;
+  }
+  .btn:hover, .btn:focus-visible { transform: skewX(-6deg) translateY(-3px); }
+  .btn:focus-visible, .card a:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+  section { padding: 8vh 6vw 10vh; max-width: 1100px; margin: 0 auto; }
+  h2 { font-weight: 800; font-size: clamp(1.6rem, 4.5vw, 2.4rem); text-align: center; margin: 0; }
+  .sub { color: var(--yellow); font-weight: 800; font-size: clamp(1.2rem, 3.5vw, 1.8rem); text-align: center; margin: 4px 0 18px; }
+  .intro { text-align: center; color: var(--muted); max-width: 60ch; margin: 0 auto 48px; }
+
+  .grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .card {
+    background: var(--panel);
+    border-top: 5px solid var(--yellow);
+    padding: 28px 24px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .card h3 { font-family: var(--display); font-weight: 400; font-size: 1.5rem; margin: 0; text-transform: uppercase; }
+  .card p { margin: 0; color: var(--muted); flex: 1; }
+  .card a {
+    align-self: flex-start;
+    background: var(--yellow);
+    color: #111;
+    font-weight: 800;
+    padding: 10px 26px;
+    text-decoration: none;
+  }
+  .card a:hover { background: #fff; }
+
+  footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 30px 6vw 40px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">MEINE-SPIELE</a>
+  <nav>
+    <a href="#spiele">Spiele</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <h1>Bereit zum<br>Spielen?</h1>
+  <a class="btn" href="#spiele">Los geht's</a>
+</div>
+
+<section id="spiele">
+  <h2>Drei Spiele.</h2>
+  <p class="sub">Direkt im Browser spielbar.</p>
+  <p class="intro">Wähle ein Spiel aus. Es öffnet sich sofort, ohne Download und ohne Anmeldung.</p>
+
+  <div class="grid">
+    <article class="card">
+      <h3>Museum Escape</h3>
+      <p>Löse die Aufgaben und finde den Weg aus dem Museum.</p>
+      <a href="spiel1museumescape.html">Spielen</a>
+    </article>
+    <article class="card">
+      <h3>Greifarm</h3>
+      <p>Rechne dir den Greifarm frei: Löse die Aufgaben und sammle Punkte.</p>
+      <a href="spiel2greifarm.html">Spielen</a>
+    </article>
+    <article class="card">
+      <h3>Schatzkarte</h3>
+      <p>Rechnen mit rationalen Zahlen: Folge der Karte zum Schatz.</p>
+      <a href="spiel3schatzkarte.html">Spielen</a>
+    </article>
+  </div>
+</section>
+
+<footer>© 2026 Meine Spiele</footer>
+
+</body>
+</html>

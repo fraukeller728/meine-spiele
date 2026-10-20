@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Schatzkarte: Rechnen mit rationalen Zahlen</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@700;800&display=swap">
+<style>
+:root{--bg:#e6eff4;--card:#fff;--ink:#0f2a43;--mut:#4d6478;--line:#b9cad6;--tile:#cfe0ea;--acc:#0f6b8f;--onacc:#fff;--gold:#c98a00;--ok:#127a4f;--bad:#b3261e;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1b2b;--card:#12304a;--ink:#e8f2f8;--mut:#9db6c8;--line:#2b4f6c;--tile:#1b4466;--acc:#5fd0b0;--onacc:#06202a;--gold:#f2b632;--ok:#5fd0a0;--bad:#ff8f86}}
+:root[data-theme="dark"]{--bg:#0a1b2b;--card:#12304a;--ink:#e8f2f8;--mut:#9db6c8;--line:#2b4f6c;--tile:#1b4466;--acc:#5fd0b0;--onacc:#06202a;--gold:#f2b632;--ok:#5fd0a0;--bad:#ff8f86}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 "Atkinson Hyperlegible",system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1,h2{font-family:"Bricolage Grotesque","Trebuchet MS",sans-serif;line-height:1.15;margin:0 0 8px}
+h1{font-size:1.7rem}h2{font-size:1.2rem}
+.card{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:16px;margin:0 0 14px}
+.top{display:flex;justify-content:space-between;gap:8px;font-weight:700;flex-wrap:wrap}
+.top span{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:2px 12px}
+label.opt{display:flex;gap:10px;align-items:flex-start;padding:6px 0;cursor:pointer}
+input[type=checkbox]{width:22px;height:22px;accent-color:var(--acc);flex:none;margin-top:2px}
+select,input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:12px 18px;background:var(--acc);color:var(--onacc);cursor:pointer;min-height:46px}
+button.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+button:disabled{opacity:.45;cursor:default}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.q{font-size:1.5rem;font-weight:700;margin:6px 0 12px;overflow-x:auto}
+.tag{color:var(--mut);font-size:.9rem}
+.fb{margin-top:10px;font-weight:700}.fb.ok{color:var(--ok)}.fb.bad{color:var(--bad)}
+.sol{margin-top:8px;padding:10px;border-left:4px solid var(--gold);background:var(--bg);border-radius:6px;font-weight:400}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;line-height:1.15;font-size:.9em}
+.fr i{font-style:normal;padding:0 4px}.fr i:first-child{border-bottom:2px solid currentColor}
+.map{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.map button{aspect-ratio:1;background:var(--tile);color:var(--ink);font-size:1.7rem;padding:0;border:2px dashed var(--line)}
+.map button.open{background:var(--card);border-style:solid;font-size:1.3rem;cursor:default;opacity:1}
+.map button.open small{display:block;font-size:.8rem;font-weight:700;color:var(--gold)}
+.hid{display:none}
+pre{white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:8px;font:inherit}
+@media (prefers-reduced-motion:no-preference){.map button{transition:transform .15s}.map button:not(:disabled):hover{transform:scale(1.05)}}
+</style>
+</head>
+<body>
+<main>
+<h1>Schatzkarte: Rechnen mit rationalen Zahlen</h1>
+<div class="top"><span>Punkte: <b id="pts">0</b></span><span>Grabungen: <b id="turns">0</b></span></div>
+
+<section id="setup" class="card" style="margin-top:14px">
+<h2>Übung einstellen</h2>
+<p class="tag">Löse die Aufgabe richtig, dann darfst du auf der Karte nach Schätzen graben. Kein Zeitdruck.</p>
+<div id="topics"></div>
+<label class="opt"><input type="checkbox" id="reveal" checked><span>Lösungsweg zeigen nach 3 Fehlversuchen (dann gibt es keine Grabung)</span></label>
+<p><label for="n">Aufgaben pro Runde</label><select id="n"></select></p>
+<button id="start">Spiel starten</button>
+</section>
+
+<section id="play" class="hid">
+<div class="card">
+<div class="tag" id="meta"></div>
+<div class="q" id="q"></div>
+<input type="text" id="ans" autocomplete="off" autocapitalize="off" aria-label="Deine Antwort" placeholder="z. B. −2,5 oder −3/4">
+<p class="tag">Negative Zahlen mit Minus tippen. Brüche als 3/4. Dezimalzahlen mit Komma oder Punkt.</p>
+<div class="row"><button id="check">Antwort prüfen</button><button class="ghost" id="hint">Tipp</button><button id="next" class="hid">Weiter</button></div>
+<div id="fb" class="fb" role="status" aria-live="polite"></div>
+</div>
+<div class="card hid" id="mapbox">
+<h2 id="mapt">Wähle ein Feld zum Graben</h2>
+<div class="map" id="map"></div>
+</div>
+</section>
+
+<section id="end" class="card hid">
+<h2>Geschafft!</h2>
+<pre id="res"></pre>
+<div class="row"><button id="copy">Ergebnis kopieren</button><button class="ghost" id="again">Neue Runde</button></div>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s),ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,pick=a=>a[ri(0,a.length-1)],nz=(a,b)=>ri(a,b)||1;
+const g=(a,b)=>b?g(b,a%b):Math.abs(a);
+const F=(n,d=1)=>{if(d<0){n=-n;d=-d}const k=g(n,d)||1;return{n:n/k,d:d/k}};
+const add=(a,b)=>F(a.n*b.d+b.n*a.d,a.d*b.d),sub=(a,b)=>F(a.n*b.d-b.n*a.d,a.d*b.d),mul=(a,b)=>F(a.n*b.n,a.d*b.d),dv=(a,b)=>F(a.n*b.d,a.d*b.n),neg=a=>F(-a.n,a.d),eq=(a,b)=>a.n===b.n&&a.d===b.d;
+const M=x=>x<0?"−"+(-x):""+x,P=x=>x<0?"("+M(x)+")":""+x;
+const fr=f=>f.d===1?M(f.n):(f.n<0?"−":"")+'<span class="fr"><i>'+Math.abs(f.n)+'</i><i>'+f.d+'</i></span>';
+function fd(f){for(let k=0;k<=3;k++){const p=10**k;if((f.n*p)%f.d===0){let s=String(Math.abs(f.n)*p/f.d).padStart(k+1,"0");if(k)s=s.slice(0,-k)+","+s.slice(-k);return(f.n<0?"−":"")+s}}return fr(f)}
+const sd=f=>f.n<0?"("+fd(f)+")":fd(f),sf=f=>f.n<0?"("+fr(f)+")":fr(f);
+const T=["Addieren und Subtrahieren","Multiplizieren und Dividieren","Vorrangregeln","Geschicktes Rechnen (Kommutativgesetz)","Distributivgesetz"];
+const H=["Gleiche Vorzeichen: Beträge addieren. Verschiedene Vorzeichen: Beträge subtrahieren, das Vorzeichen der größeren Zahl bleibt. Minus eine negative Zahl wird zu Plus. Bei Brüchen: Hauptnenner bilden.",
+"Gleiche Vorzeichen ergeben Plus, verschiedene Vorzeichen ergeben Minus. Durch einen Bruch teilen heißt: mit dem Kehrwert malnehmen.",
+"Zuerst Klammern, dann Punkt vor Strich (· und : vor + und −), sonst von links nach rechts.",
+"Vertausche und fasse so zusammen, dass runde Zahlen entstehen (z. B. Summe 100 oder Produkt 100).",
+"a · (b + c) = a · b + a · c. Rechne zurück (Ausklammern) oder zerlege eine Zahl, z. B. 99 = 100 − 1."];
+const G=[
+()=>{if(Math.random()<.5){const a=F(nz(-95,95),10),b=F(nz(-95,95),10),p=Math.random()<.5,r=p?add(a,b):sub(a,b);
+ return{q:fd(a)+(p?" + ":" − ")+sd(b),a:r,s:p?fd(a)+" + "+sd(b)+" = "+fd(r):fd(a)+" − "+sd(b)+" = "+fd(a)+" + "+sd(neg(b))+" = "+fd(r)}}
+ const a=F(nz(-7,7),pick([2,3,4,5,6,8])),b=F(nz(-7,7),pick([2,3,4,6,8,12])),p=Math.random()<.5,r=p?add(a,b):sub(a,b);
+ return{q:fr(a)+(p?" + ":" − ")+sf(b),a:r,s:"Hauptnenner bilden, dann "+(p?"addieren":"subtrahieren")+": "+fr(a)+(p?" + ":" − ")+sf(b)+" = "+fr(r)}},
+()=>{const v=ri(0,3);let a,b,r,q,s;
+ if(v===0){a=F(nz(-12,12),10);b=F(nz(-9,9),10);r=mul(a,b);q=fd(a)+" · "+sd(b);s=q+" = "+fd(r)}
+ else if(v===1){a=F(nz(-9,9),ri(2,9));b=F(nz(-9,9),ri(2,9));r=mul(a,b);q=fr(a)+" · "+sf(b);s="Zähler mal Zähler, Nenner mal Nenner, kürzen: "+fr(r)}
+ else if(v===2){b=F(nz(-9,9),10);const c=F(nz(-12,12),10);a=mul(c,b);r=c;q=fd(a)+" : "+sd(b);s=q+" = "+fd(r)+" (Probe: "+fd(r)+" · "+sd(b)+" = "+fd(a)+")"}
+ else{a=F(nz(-9,9),ri(2,9));b=F(nz(-9,9),ri(2,9));r=dv(a,b);q=fr(a)+" : "+sf(b);s=fr(a)+" · "+sf(F(b.d,b.n))+" = "+fr(r)}
+ return{q,a:r,s}},
+()=>{const v=ri(0,3),a=nz(-12,12),b=nz(-9,9),c=nz(-9,9),d=nz(-9,9);
+ if(v===0)return{q:M(a)+" + "+P(b)+" · "+P(c),a:F(a+b*c),s:"Punkt vor Strich: "+P(b)+" · "+P(c)+" = "+M(b*c)+". Dann "+M(a)+" + "+P(b*c)+" = "+M(a+b*c)};
+ if(v===1)return{q:"("+M(a)+" + "+P(b)+") · "+P(c)+" − "+P(d),a:F((a+b)*c-d),s:"Klammer: "+M(a+b)+". Mal "+P(c)+": "+M((a+b)*c)+". Minus "+P(d)+": "+M((a+b)*c-d)};
+ if(v===2)return{q:M(a)+" − "+P(b)+" · ("+M(c)+" − "+P(d)+")",a:F(a-b*(c-d)),s:"Klammer: "+M(c-d)+". Punkt vor Strich: "+P(b)+" · "+P(c-d)+" = "+M(b*(c-d))+". Dann "+M(a)+" − "+P(b*(c-d))+" = "+M(a-b*(c-d))};
+ const k=nz(-6,6),e=nz(-8,8);return{q:M(a)+" · "+P(b)+" + "+M(k*e)+" : "+P(e),a:F(a*b+k),s:"Punkt vor Strich: "+M(a*b)+" und "+M(k*e)+" : "+P(e)+" = "+M(k)+". Summe: "+M(a*b+k)}},
+()=>{const v=ri(0,2);
+ if(v===0){const x=ri(12,88),A=-x,C=-(100-x),b=nz(-60,60);return{q:M(A)+" + "+P(b)+" + "+P(C),a:F(b-100),s:"Vertauschen: ("+M(A)+" + "+P(C)+") + "+P(b)+" = −100 + "+P(b)+" = "+M(b-100)}}
+ if(v===1){const [p,q]=pick([[2,5],[4,25],[20,5],[25,4]]),b=nz(-15,15),sg=pick([1,-1]),pp=p*sg;return{q:P(pp)+" · "+P(b)+" · "+P(q),a:F(pp*q*b),s:"Vertauschen: ("+P(pp)+" · "+P(q)+") · "+P(b)+" = "+M(pp*q)+" · "+P(b)+" = "+M(pp*q*b)}}
+ const x=ri(11,89),A=F(x,10),C=F(100-x,10),B=F(nz(-50,50),10),r=add(F(10),B);return{q:fd(A)+" + "+sd(B)+" + "+fd(C),a:r,s:"Vertauschen: ("+fd(A)+" + "+fd(C)+") + "+sd(B)+" = 10 + "+sd(B)+" = "+fd(r)}},
+()=>{const v=ri(0,2);
+ if(v===0){const a=nz(-12,12)||2,b=nz(-80,80),c=pick([10,100,-10,-100])-b||5;return{q:M(a)+" · "+P(b)+" + "+M(a)+" · "+P(c),a:F(a*(b+c)),s:"Ausklammern: "+M(a)+" · ("+M(b)+" + "+P(c)+") = "+M(a)+" · "+P(b+c)+" = "+M(a*(b+c))}}
+ if(v===1){const a=-ri(2,9),b=ri(2,15),c=ri(2,15);return{q:M(a)+" · ("+b+" − "+c+")",a:F(a*(b-c)),s:M(a)+" · "+b+" − "+P(a)+" · "+c+" = "+M(a*b)+" − "+P(a*c)+" = "+M(a*(b-c))}}
+ const e=pick([-2,-1,1,2]),n=100+e,k=pick([-9,-8,-7,-6,-5,-4,-3,3,4,5,6,7,8,9]),o=e<0?" − ":" + ";return{q:n+" · "+P(k),a:F(n*k),s:"("+(e<0?"100 − ":"100 + ")+Math.abs(e)+") · "+P(k)+" = 100 · "+P(k)+o+Math.abs(e)+" · "+P(k)+" = "+M(100*k)+o+P(Math.abs(e)*k)+" = "+M(n*k)}}];
+function parseNum(t){t=t.replace(/[−–]/g,"-").replace(/\s/g,"").replace(/,/g,".");
+ const one=s=>{const m=/^(-?)(\d+)(?:\.(\d+))?$/.exec(s);if(!m)return null;const k=(m[3]||"").length;return F((m[1]?-1:1)*Number(m[2]+(m[3]||"")),10**k)};
+ if(t.includes("/")){const p=t.split("/");if(p.length!==2)return null;const a=one(p[0]),b=one(p[1]);return a&&b&&b.n!==0?dv(a,b):null}
+ return one(t)}
+const S={sel:new Set([0,1,2,3,4]),qs:[],i:0,wrong:0,turns:0,pts:0,st:[],cur:null,map:[],digs:0};
+T.forEach((t,i)=>{$("#topics").insertAdjacentHTML("beforeend",`<label class="opt"><input type="checkbox" data-t="${i}" checked><span>${t}</span></label>`)});
+for(let i=5;i<=30;i++)$("#n").insertAdjacentHTML("beforeend",`<option${i===10?" selected":""}>${i}</option>`);
+$("#topics").onchange=e=>{const i=+e.target.dataset.t;e.target.checked?S.sel.add(i):S.sel.delete(i)};
+const show=id=>["setup","play","end"].forEach(x=>$("#"+x).classList.toggle("hid",x!==id));
+function newMap(){const p=[];for(let i=0;i<3;i++)p.push(["🧰","Truhe",60]);for(let i=0;i<4;i++)p.push(["🪙","Münzen",25]);for(let i=0;i<4;i++)p.push(["💎","Edelstein",15]);for(let i=0;i<5;i++)p.push(["🏖️","Sand",5]);
+ p.sort(()=>Math.random()-.5);S.map=p.map(x=>({c:x,o:false}));S.digs=0;drawMap(false)}
+function drawMap(on){$("#map").innerHTML=S.map.map((t,i)=>t.o?`<button class="open" disabled aria-label="${t.c[1]}">${t.c[0]}<small>+${t.c[2]}</small></button>`:`<button ${on?"":"disabled"} data-i="${i}" aria-label="Feld ${i+1} aufgraben">✖️</button>`).join("")}
+$("#map").onclick=e=>{const b=e.target.closest("button[data-i]");if(!b||!S.canDig)return;const t=S.map[+b.dataset.i];t.o=true;S.canDig=false;S.turns--;S.pts+=t.c[2];S.digs++;
+ $("#mapt").textContent=t.c[1]+" gefunden: +"+t.c[2]+" Punkte";upd();drawMap(false);
+ if(S.digs===16){setTimeout(newMap,900)}$("#next").classList.remove("hid");$("#next").textContent=S.i+1>=S.qs.length?"Ergebnis ansehen":"Nächste Aufgabe"};
+function upd(){$("#pts").textContent=S.pts;$("#turns").textContent=S.turns}
+function ask(){const q=S.qs[S.i];S.cur=q;S.wrong=0;S.canDig=false;
+ $("#meta").textContent="Aufgabe "+(S.i+1)+" von "+S.qs.length+" · "+T[q.t];$("#q").innerHTML=q.q+" = ?";
+ $("#ans").value="";$("#ans").disabled=false;$("#check").disabled=false;$("#fb").innerHTML="";$("#fb").className="fb";$("#next").classList.add("hid");$("#mapbox").classList.add("hid");$("#ans").focus()}
+function check(){const f=parseNum($("#ans").value),fb=$("#fb"),q=S.cur;
+ if(!f){fb.className="fb bad";fb.textContent="Bitte gib eine Zahl ein, z. B. −2,5 oder 3/4.";return}
+ if(eq(f,q.a)){q.ok=S.wrong===0;S.st[q.t].tot++;if(q.ok)S.st[q.t].ok++;S.turns++;upd();fb.className="fb ok";fb.textContent="Richtig! Du darfst graben.";
+  $("#ans").disabled=true;$("#check").disabled=true;S.canDig=true;$("#mapt").textContent="Wähle ein Feld zum Graben";$("#mapbox").classList.remove("hid");drawMap(true);return}
+ S.wrong++;fb.className="fb bad";
+ if(S.wrong>=3&&$("#reveal").checked){S.st[q.t].tot++;fb.innerHTML='Lösung aufgedeckt (keine Grabung):<div class="sol">'+q.s+"</div>";$("#ans").disabled=true;$("#check").disabled=true;$("#next").classList.remove("hid");$("#next").textContent=S.i+1>=S.qs.length?"Ergebnis ansehen":"Nächste Aufgabe"}
+ else fb.textContent="Noch nicht richtig. Fehlversuch "+S.wrong+($("#reveal").checked?" von 3":"")+". Probier es nochmal."}
+$("#check").onclick=check;$("#ans").onkeydown=e=>{if(e.key==="Enter"&&!$("#check").disabled)check()};
+$("#hint").onclick=()=>{$("#fb").className="fb";$("#fb").innerHTML='<div class="sol">'+H[S.cur.t]+"</div>"};
+$("#next").onclick=()=>{S.i++;S.i>=S.qs.length?finish():ask()};
+$("#start").onclick=()=>{if(!S.sel.size){alert("Bitte wähle mindestens ein Thema.");return}
+ const ts=[...S.sel],n=+$("#n").value;S.qs=[];for(let i=0;i<n;i++){const t=ts[i%ts.length];S.qs.push({t,...G[t]()})}
+ S.qs.sort(()=>Math.random()-.5);S.i=0;S.turns=0;S.pts=0;S.st=T.map(()=>({ok:0,tot:0}));upd();newMap();show("play");ask()};
+function finish(){show("end");$("#res").textContent="Punkte: "+S.pts+"\nGrabungen übrig: "+S.turns+"\n\nBeim ersten Versuch richtig:\n"+T.map((t,i)=>S.st[i].tot?t+": "+S.st[i].ok+" von "+S.st[i].tot:"").filter(Boolean).join("\n")}
+$("#copy").onclick=async()=>{try{await navigator.clipboard.writeText($("#res").textContent);$("#copy").textContent="Kopiert"}catch(e){$("#copy").textContent="Text markieren und kopieren"}};
+$("#again").onclick=()=>show("setup");
+</script>
+</body>
+</html>

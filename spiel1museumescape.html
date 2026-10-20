@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Das Geheimnis des alten Museums</title>
+<style>
+:root{--bg:#f6f1e7;--card:#fffdf8;--ink:#2b2418;--mut:#6d614b;--acc:#8a5a1f;--acc2:#b9812e;--ok:#2e7d4f;--bad:#b3392f;--line:#d9ccb2;--in:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1812;--card:#272118;--ink:#f1e8d6;--mut:#b5a78a;--acc:#e0a94f;--acc2:#c98f33;--ok:#5fc08a;--bad:#ef7a6f;--line:#4a3f2b;--in:#1f1a12;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1c1812;--card:#272118;--ink:#f1e8d6;--mut:#b5a78a;--acc:#e0a94f;--acc2:#c98f33;--ok:#5fc08a;--bad:#ef7a6f;--line:#4a3f2b;--in:#1f1a12;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.5 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+#app{max-width:820px;margin:0 auto;padding:16px}
+h1{font-size:30px;margin:8px 0}h2{font-size:24px;margin:4px 0 10px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:18px;margin:12px 0}
+.prog{display:flex;gap:8px;justify-content:center;margin:6px 0 10px}
+.dot{width:38px;height:38px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--mut);background:var(--card)}
+.dot.on{border-color:var(--acc);color:var(--acc)}.dot.done{background:var(--ok);border-color:var(--ok);color:#fff}
+button{font:inherit;font-weight:700;min-height:50px;padding:10px 22px;border-radius:14px;border:0;background:var(--acc);color:#fff;cursor:pointer}
+button.alt{background:transparent;color:var(--acc);border:2px solid var(--acc)}
+input.s,input.c,input.t{font:inherit;border:2px solid var(--line);border-radius:10px;padding:6px 8px;background:var(--in);color:var(--ink)}
+input.s{width:96px;text-align:center}input.t{width:100%}
+input.c{width:190px;font-size:32px;text-align:center;letter-spacing:6px;font-family:ui-monospace,Menlo,monospace}
+table{border-collapse:collapse;width:100%;margin:10px 0}td,th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:middle}
+th{background:var(--line);color:var(--ink)}
+details{margin:8px 0;border:1px dashed var(--acc2);border-radius:12px;padding:8px 12px}summary{cursor:pointer;font-weight:700;color:var(--acc)}
+.lock{text-align:center;margin-top:16px;padding-top:14px;border-top:2px dashed var(--line)}
+.msg{min-height:30px;margin:10px 0;font-weight:700}.msg.bad{color:var(--bad)}.msg.ok{color:var(--ok)}
+.shake{animation:sh .4s}@keyframes sh{20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.inv{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}
+.pill{background:var(--card);border:2px solid var(--acc2);border-radius:12px;padding:4px 12px;font-family:ui-monospace,Menlo,monospace;font-weight:700}
+.big{font-size:60px;text-align:center}
+svg text{fill:var(--ink)}svg line,svg path{stroke:var(--ink)}
+ol{padding-left:22px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var CODES=["1057","1895","4691","2375","3732"],FINAL="13750";
+var st={i:-1,got:[],bad:0};
+var app=document.getElementById("app");
+function inp(w){return '<input class="s" inputmode="numeric" autocomplete="off" style="width:'+(w||96)+'px">';}
+function tally(n){var s='<svg width="'+(Math.ceil(n/5)*46)+'" height="34" viewBox="0 0 '+(Math.ceil(n/5)*46)+' 34">',x=0;
+while(n>0){var k=Math.min(5,n);for(var j=0;j<Math.min(k,4);j++)s+='<line x1="'+(x+6+j*8)+'" y1="4" x2="'+(x+6+j*8)+'" y2="30" stroke-width="3" stroke-linecap="round"/>';
+if(k==5)s+='<line x1="'+(x+2)+'" y1="26" x2="'+(x+36)+'" y2="8" stroke-width="3" stroke-linecap="round"/>';x+=46;n-=k;}
+return s+'</svg>';}
+function strahl(){var X=function(v){return 40+(v-40000)/10000*620},s='<svg viewBox="0 0 700 140" style="width:100%"><line x1="30" y1="90" x2="670" y2="90" stroke-width="3"/>';
+for(var v=40000;v<=50000;v+=1000){var big=v%5000==0;s+='<line x1="'+X(v)+'" y1="'+(big?78:82)+'" x2="'+X(v)+'" y2="98" stroke-width="2"/>';}
+[40000,45000,50000].forEach(function(v){s+='<text x="'+X(v)+'" y="124" text-anchor="middle" font-size="18">'+v.toLocaleString("de-DE")+'</text>';});
+[["A",42000],["B",45000],["C",47000]].forEach(function(p){var x=X(p[1]);s+='<path d="M'+x+' 86 L'+(x-8)+' 66 L'+(x+8)+' 66 Z" fill="#b9812e" stroke-width="1"/><text x="'+x+'" y="52" text-anchor="middle" font-size="24" font-weight="700">'+p[0]+'</text>';});
+return s+'</svg>';}
+var S=[
+{t:"Station 1: Die Sammlerliste",b:function(){return '<p>Der Professor hat Besucherkinder befragt: „Welches Ausstellungsstück gefällt dir am besten?“ Hier ist seine Strichliste. Ein durchgestrichenes Bündel steht für 5 Kinder.</p><table><tr><th>Ausstellungsstück</th><th>Strichliste</th><th>Anzahl</th></tr><tr><td>Kompass</td><td>'+tally(6)+'</td><td>'+inp(70)+'</td></tr><tr><td>Globus</td><td>'+tally(4)+'</td><td>'+inp(70)+'</td></tr><tr><td>Münze</td><td>'+tally(9)+'</td><td>'+inp(70)+'</td></tr><tr><td>Schlüssel</td><td>'+tally(2)+'</td><td>'+inp(70)+'</td></tr></table><ol><li>Zählt die Striche und tragt die Anzahl ein.</li><li>Wie viele Kinder wurden insgesamt befragt? '+inp(70)+'</li><li>Welches Ausstellungsstück ist am beliebtesten, welches am wenigsten beliebt? <input class="s" style="width:140px"> <input class="s" style="width:140px"></li><li>Wie groß ist der Unterschied zwischen dem beliebtesten und dem am wenigsten beliebten Stück? '+inp(70)+'</li><li>Der Professor möchte jedem befragten Kind 5 Sammelkarten schenken. Wie viele Karten braucht er insgesamt? '+inp(70)+'</li></ol><p><b>Code:</b> Schreibt zuerst die Anzahl der Karten aus Aufgabe 5 auf und direkt dahinter den Unterschied aus Aufgabe 4.</p>';},h:["Ein durchgestrichenes Bündel bedeutet 5. Zählt in Fünferschritten.","Die Gesamtzahl bekommt ihr, wenn ihr alle vier Anzahlen addiert. Den Unterschied bekommt ihr, wenn ihr die kleinere Anzahl von der größeren abzieht.","Für die Karten rechnet ihr 5 mal die Gesamtzahl der Kinder."]},
+{t:"Station 2: Die Steintafeln",b:function(){return '<p>An der Wand hängen vier Tafeln mit römischen Zahlen.</p><table><tr><th>Tafel</th><th>Römische Zahl</th><th>Unsere Schreibweise</th></tr><tr><td>A</td><td>XXIV</td><td>'+inp()+'</td></tr><tr><td>B</td><td>CXLVIII</td><td>'+inp()+'</td></tr><tr><td>C</td><td>DCCLXV</td><td>'+inp()+'</td></tr><tr><td>D</td><td>MDCCCXCV</td><td>'+inp()+'</td></tr></table><ol><li>Schreibt alle vier Zahlen in unserer Schreibweise.</li><li>Ordnet die Tafeln von der kleinsten zur größten Zahl: <input class="s" style="width:140px"></li><li>Eine Tafel zeigt das Gründungsjahr des Museums. Es ist die größte Zahl.</li></ol><p><b>Code:</b> das Gründungsjahr.</p>';},h:["I = 1, V = 5, X = 10, L = 50, C = 100, D = 500, M = 1000.","Steht ein kleineres Zeichen links von einem größeren, wird abgezogen (IV = 4, XC = 90). Sonst wird addiert (VI = 6). Rechnet in Portionen: MDCCC ist 1800, XC ist 90, V ist 5.","<b>So lest ihr römische Zahlen:</b><br>1. Jedes Zeichen hat einen festen Wert: I = 1, V = 5, X = 10, L = 50, C = 100, D = 500, M = 1000.<br>2. Lest von links nach rechts. Gleiche oder kleinere Zeichen, die hinter einem Zeichen stehen, werden addiert: XXI = 10 + 10 + 1 = 21, CLX = 100 + 50 + 10 = 160.<br>3. Steht ein kleineres Zeichen direkt vor einem größeren, wird abgezogen: IX = 10 − 1 = 9, XL = 50 − 10 = 40, CD = 500 − 100 = 400, XC = 100 − 10 = 90.<br>4. Ein Zeichen steht höchstens dreimal hintereinander (III = 3, aber IV = 4 und nicht IIII).<br>5. Zerlegt die Zahl in kleine Stücke und addiert die Stücke. Beispiel: DCXLII = D (500) + C (100) + XL (40) + II (2) = 642."]},
+{t:"Station 3: Der Pfad der Zahlen",b:function(){return '<p>Der Zahlenstrahl geht von 40 000 bis 50 000. Jeder Teilstrich steht für 1 000.</p>'+strahl()+'<p><b>Aufgabe 1:</b> Welche Zahlen zeigen die Pfeile?<br>A = '+inp(100)+' B = '+inp(100)+' C = '+inp(100)+'</p><p><b>Aufgabe 2:</b> Der Professor hat die Besucherzahlen notiert. Rundet jede Zahl auf Tausender.</p><table><tr><th>Jahr</th><th>Besucher</th><th>Gerundet</th></tr><tr><td>2022</td><td>43 618</td><td>'+inp(100)+'</td></tr><tr><td>2023</td><td>46 249</td><td>'+inp(100)+'</td></tr><tr><td>2024</td><td>48 502</td><td>'+inp(100)+'</td></tr><tr><td>2025</td><td>41 377</td><td>'+inp(100)+'</td></tr></table><p><b>Code:</b> Schreibt von den vier gerundeten Zahlen nur die Tausenderziffer auf, in der Reihenfolge der Jahre (aus 52 000 wird zum Beispiel die 2).</p>';},h:["Schaut auf die Hunderterstelle. Bei 0 bis 4 wird abgerundet, bei 5 bis 9 wird aufgerundet."]},
+{t:"Station 4: Die Waage des Professors",b:function(){return '<p><b>Aufgabe 1 (Schätzen):</b> Wie hoch ist die Eichentür des Museums?<br><label><input type="radio" name="r"> 2 cm</label> &nbsp; <label><input type="radio" name="r"> 2 m</label> &nbsp; <label><input type="radio" name="r"> 2 km</label><br>Schreibt die Ziffer der richtigen Antwort auf.</p><p><b>Aufgabe 2 (Umrechnen):</b> 3 000 ml = '+inp(70)+' l</p><p><b>Aufgabe 3 (Kommaschreibweise):</b> 4 m 70 cm = 4,'+inp(70)+' m</p><p><b>Aufgabe 4 (Kommaschreibweise):</b> 2 kg 500 g = 2,'+inp(70)+' kg</p><p><b>Code:</b> die vier gesuchten Ziffern, der Reihe nach.</p>';},h:["1 km = 1 000 m, 1 m = 100 cm, 1 kg = 1 000 g, 1 l = 1 000 ml.","Zehntel haben eine Nachkommastelle: 500 g sind 0,5 kg."]},
+{t:"Station 5: Der Plan zum Ausgang",b:function(){return '<p>Der Plan des Raumes hat den Maßstab 1 : 200. Das heißt: 1 cm auf dem Plan sind 2 m in Wirklichkeit.</p><table><tr><th>Strecke</th><th>Auf dem Plan</th><th>In Wirklichkeit</th></tr><tr><td>Eingang bis Fenster</td><td>6,5 cm</td><td>'+inp(70)+' m</td></tr><tr><td>Fenster bis Truhe</td><td>12 cm</td><td>'+inp(70)+' m</td></tr><tr><td>Tafel</td><td>'+inp(70)+' cm</td><td>6 m 40 cm breit</td></tr></table><p><b>Zusatzfrage:</b> Wie lang ist der ganze Weg vom Eingang über das Fenster bis zur Truhe? '+inp(70)+' m</p><p><b>Code:</b> Schreibt die Länge des ganzen Weges (in Meter) auf und direkt dahinter die Länge der Tafel auf dem Plan ohne Komma.</p>';},h:["Maßstab 1 : 200 heißt: Die Wirklichkeit ist 200-mal so groß wie der Plan. 1 cm auf dem Plan sind 200 cm, also 2 m in Wirklichkeit.","Rechnet zuerst in cm und wandelt dann um. Beispiel: 3 cm auf dem Plan sind 3 · 200 = 600 cm = 6 m. Beim Rückwärtsrechnen teilt ihr durch 200. Rechnet bei der Tafel zuerst 6 m 40 cm in cm um."]}
+];
+function head(){var d='<div class="prog">';for(var k=0;k<5;k++)d+='<div class="dot '+(k<st.got.length?'done':k==st.i?'on':'')+'">'+(k<st.got.length?'✓':k+1)+'</div>';d+='<div class="dot '+(st.i==5?'on':'')+'">🚪</div></div>';
+if(st.got.length)d+='<div class="inv">'+st.got.map(function(c,k){return '<span class="pill">🔑 '+(k+1)+': '+c+'</span>';}).join('')+'</div>';return d;}
+function start(){st={i:-1,got:[],bad:0};app.innerHTML='<div class="card"><div class="big">🏛️</div><h1>Das Geheimnis des alten Museums</h1><p>Hallo ihr Detektive! Euer Klassenausflug ins Landesmuseum ist geheimnisvoll geworden: Im Raum der alten Vermessungskunst fiel hinter euch mit einem lauten „Klick“ die schwere Eichentür ins Schloss. Professor Zahlenschmidt, der Museumsmeister, ist spurlos verschwunden.</p><p>Er hat euch fünf Rätselstationen hinterlassen. Jede Station hat ein Zahlenschloss. Habt ihr den Code gefunden, bekommt ihr eine Schlüsselzahl und dürft zur nächsten Station. Am Ende braucht ihr <b>alle fünf Schlüsselzahlen</b>, um die letzte Tür zu öffnen.</p><p>Arbeitet im Team, nutzt Stift und Papier. Viel Erfolg!</p><div style="text-align:center"><button onclick="go(0)">Abenteuer starten</button></div></div>';scrollTo(0,0);}
+function go(i){st.i=i;st.bad=0;var s=S[i];app.innerHTML=head()+'<div class="card"><h2>'+s.t+'</h2>'+s.b()+s.h.map(function(h,k){return '<details><summary>Hilfe '+(k+1)+'</summary><p>'+h+'</p></details>';}).join('')+'<div class="lock"><div>🔒 Gebt den Code ein:</div><p><input class="c" id="code" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="····"></p><button onclick="check()">Schloss öffnen</button><div class="msg" id="msg"></div></div></div>';scrollTo(0,0);}
+function check(){var v=document.getElementById("code").value.replace(/\s/g,""),m=document.getElementById("msg");
+if(v==CODES[st.i]){st.got.push(v);m.className="msg ok";m.innerHTML="🔓 Klick! Das Schloss springt auf. Schlüsselzahl "+v+" gesichert.";
+document.querySelector(".lock").innerHTML='<div class="big">🔓</div><div class="msg ok">Geschafft! Schlüsselzahl '+v+' gesichert.</div><button onclick="go('+(st.i+1)+')">'+(st.i<4?'Weiter zur nächsten Station':'Zur letzten Tür')+'</button>';
+if(st.i==4){document.querySelector(".lock button").onclick=fin;}
+var h=document.createElement("div");h.innerHTML=head();var p=document.querySelector(".prog");p.replaceWith(h.querySelector(".prog"));var iv=document.querySelector(".inv");if(iv)iv.remove();var nv=h.querySelector(".inv");if(nv)document.querySelector(".prog").after(nv);
+}else{st.bad++;m.className="msg bad";m.textContent=st.bad>=3?"Das Schloss bewegt sich nicht. Schaut euch die Hilfen an und rechnet noch einmal nach.":"Das Schloss bewegt sich nicht. Prüft eure Rechnung noch einmal!";var c=document.querySelector(".lock");c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake");}}
+function fin(){st.i=5;st.bad=0;app.innerHTML=head()+'<div class="card"><div class="big">🚪</div><h2>Die letzte Tür</h2><p>Vor euch steht die schwere Eichentür. Auf ihr steht: „Nur wer alle Schlüsselzahlen des Professors zusammenzählt, kommt hinaus.“</p><p><b>Rechnet alle fünf Schlüsselzahlen zusammen</b> (schriftlich untereinander) und gebt die Summe ein.</p><div class="lock"><p><input class="c" id="code" inputmode="numeric" maxlength="6" style="width:250px" autocomplete="off" placeholder="······"></p><button onclick="last()">Tür öffnen</button><div class="msg" id="msg"></div></div></div>';scrollTo(0,0);}
+function last(){var v=document.getElementById("code").value.replace(/[\s.]/g,""),m=document.getElementById("msg");
+if(v==FINAL){app.innerHTML='<div class="card" style="text-align:center"><div class="big">🎉🔓🎉</div><h1>Ihr seid frei!</h1><p>Die Eichentür schwingt auf. Ihr habt das Geheimnis des Professors gelüftet und den Ausgang gefunden.</p><p>Professor Zahlenschmidt wartet draußen und applaudiert: „Hervorragende Detektive!“</p><div class="card"><b>🏅 Urkunde</b><br>Dieses Team hat das Escape Game „Das Geheimnis des alten Museums“ gemeistert.</div><button class="alt" onclick="start()">Noch einmal spielen</button></div>';scrollTo(0,0);}
+else{st.bad++;m.className="msg bad";m.textContent=st.bad>=2?"Die Tür bleibt zu. Habt ihr alle fünf Schlüsselzahlen addiert? Schreibt sie untereinander.":"Die Tür bleibt zu. Rechnet noch einmal nach!";var c=document.querySelector(".lock");c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake");}}
+start();
+</script>
+</body>
+</html>
