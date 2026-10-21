@@ -3,19 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Drei Spiele zum direkten Spielen im Browser.">
+<meta name="theme-color" content="#0a0b10">
 <title>Meine Spiele</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
 <style>
+  /* Schrift lokal: Bungee-Regular.ttf in denselben Ordner wie diese Datei legen */
+  @font-face {
+    font-family: "Bungee";
+    src: url("Bungee-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+  }
+
   :root {
+    color-scheme: dark;
     --bg: #0a0b10;
     --panel: #14161f;
     --yellow: #ffc61a;
     --text: #f3f3f3;
     --muted: #a9acb8;
     --display: "Bungee", "Arial Black", Impact, sans-serif;
-    --body: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --s1: .5rem; --s2: 1rem; --s3: 1.5rem; --s4: 2rem; --s5: 3rem; --s6: 4rem;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -26,19 +36,13 @@
     font-family: var(--body);
     line-height: 1.6;
   }
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 6vw;
-  }
+
+  header { padding: var(--s3) 6vw; }
   .logo { color: var(--yellow); font-weight: 800; font-size: 1.05rem; text-decoration: none; }
-  nav a { color: var(--text); text-decoration: none; font-weight: 600; font-size: .9rem; margin-left: 22px; }
-  nav a:hover, nav a:focus-visible { color: var(--yellow); }
 
   .hero {
     text-align: center;
-    padding: 9vh 6vw 14vh;
+    padding: clamp(2rem, 5vh, 3.5rem) 6vw clamp(4rem, 9vh, 6rem);
     background:
       radial-gradient(ellipse at 50% 0%, #1b2a4a 0%, transparent 60%),
       var(--bg);
@@ -49,86 +53,109 @@
     font-weight: 400;
     font-size: clamp(2.4rem, 9vw, 5.5rem);
     line-height: 1.05;
-    margin: 0 0 32px;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
     text-transform: uppercase;
+    margin: 0 0 var(--s3);
   }
+
   .btn {
     display: inline-block;
     background: var(--yellow);
     color: #111;
     font-weight: 800;
     font-size: 1.15rem;
-    padding: 16px 46px;
+    padding: var(--s2) var(--s5);
     text-decoration: none;
     transform: skewX(-6deg);
-    transition: transform .15s;
   }
-  .btn:hover, .btn:focus-visible { transform: skewX(-6deg) translateY(-3px); }
-  .btn:focus-visible, .card a:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .btn, .card a { touch-action: manipulation; transition: transform 100ms ease-out; }
+  .btn:active { transform: skewX(-6deg) scale(.97); }
+  .btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 
-  section { padding: 8vh 6vw 10vh; max-width: 1100px; margin: 0 auto; }
+  section { padding: var(--s5) 6vw var(--s6); max-width: 1100px; margin: 0 auto; }
   h2 { font-weight: 800; font-size: clamp(1.6rem, 4.5vw, 2.4rem); text-align: center; margin: 0; }
-  .sub { color: var(--yellow); font-weight: 800; font-size: clamp(1.2rem, 3.5vw, 1.8rem); text-align: center; margin: 4px 0 18px; }
-  .intro { text-align: center; color: var(--muted); max-width: 60ch; margin: 0 auto 48px; }
+  .sub { color: var(--yellow); font-weight: 800; font-size: clamp(1.2rem, 3.5vw, 1.8rem); text-align: center; margin: .25rem 0 var(--s4); }
 
-  .grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .grid { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
   .card {
+    position: relative;
     background: var(--panel);
     border-top: 5px solid var(--yellow);
-    padding: 28px 24px 26px;
+    padding: var(--s4) var(--s3);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--s1);
   }
-  .card h3 { font-family: var(--display); font-weight: 400; font-size: 1.5rem; margin: 0; text-transform: uppercase; }
-  .card p { margin: 0; color: var(--muted); flex: 1; }
+  .num { font-family: var(--display); font-size: 3rem; line-height: 1; color: var(--yellow); }
+  .card h3 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-transform: uppercase;
+  }
+  .card p { margin: 0 0 var(--s2); color: var(--muted); flex: 1; }
   .card a {
     align-self: flex-start;
     background: var(--yellow);
     color: #111;
     font-weight: 800;
-    padding: 10px 26px;
+    padding: .75rem 1.75rem;
     text-decoration: none;
   }
-  .card a:hover { background: #fff; }
+  .card a::after { content: ""; position: absolute; inset: 0; } /* ganze Karte klickbar */
+  .card a:active { transform: scale(.97); }
+  .card a:focus-visible { outline: none; }
+  .card:has(a:focus-visible) { outline: 3px solid #fff; outline-offset: 3px; }
 
-  footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 30px 6vw 40px; }
+  @media (hover: hover) {
+    .btn:hover { transform: skewX(-6deg) translateY(-3px); }
+    .card:hover a { background: #fff; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn, .card a { transition: none; }
+    .btn:hover { transform: skewX(-6deg); }
+  }
+
+  footer { text-align: center; color: var(--muted); font-size: .85rem; padding: var(--s4) 6vw var(--s5); }
 </style>
 </head>
 <body>
 
 <header>
   <a class="logo" href="#">MEINE-SPIELE</a>
-  <nav>
-    <a href="#spiele">Spiele</a>
-  </nav>
 </header>
 
 <div class="hero">
-  <h1>Bereit zum<br>Spielen?</h1>
-  <a class="btn" href="#spiele">Los geht's</a>
+  <h1>Bereit zum Spielen?</h1>
+  <a class="btn" href="#spiele">Zu den Spielen</a>
 </div>
 
 <section id="spiele">
   <h2>Drei Spiele.</h2>
   <p class="sub">Direkt im Browser spielbar.</p>
-  <p class="intro">Wähle ein Spiel aus. Es öffnet sich sofort, ohne Download und ohne Anmeldung.</p>
 
   <div class="grid">
     <article class="card">
+      <span class="num" aria-hidden="true">01</span>
       <h3>Museum Escape</h3>
       <p>Löse die Aufgaben und finde den Weg aus dem Museum.</p>
-      <a href="spiel1museumescape.html">Spielen</a>
+      <a href="spiel1museumescape.html" aria-label="Museum Escape spielen">Spielen</a>
     </article>
     <article class="card">
+      <span class="num" aria-hidden="true">02</span>
       <h3>Greifarm</h3>
       <p>Rechne dir den Greifarm frei: Löse die Aufgaben und sammle Punkte.</p>
-      <a href="spiel2greifarm.html">Spielen</a>
+      <a href="spiel2greifarm.html" aria-label="Greifarm spielen">Spielen</a>
     </article>
     <article class="card">
+      <span class="num" aria-hidden="true">03</span>
       <h3>Schatzkarte</h3>
       <p>Rechnen mit rationalen Zahlen: Folge der Karte zum Schatz.</p>
-      <a href="spiel3schatzkarte.html">Spielen</a>
+      <a href="spiel3schatzkarte.html" aria-label="Schatzkarte spielen">Spielen</a>
     </article>
   </div>
 </section>
