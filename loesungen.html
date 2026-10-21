@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Lösungen zu den Browser-Spielen.">
+<meta name="theme-color" content="#0a0b10">
+<title>Lösungen - Meine Spiele</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>">
+<style>
+  @font-face {
+    font-family: "Bungee";
+    src: url("Bungee-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  :root {
+    color-scheme: dark;
+    --bg: #0a0b10;
+    --panel: #14161f;
+    --yellow: #ffc61a;
+    --text: #f3f3f3;
+    --muted: #a9acb8;
+    --display: "Bungee", "Arial Black", Impact, sans-serif;
+    --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --s1: .5rem; --s2: 1rem; --s3: 1.5rem; --s4: 2rem; --s5: 3rem; --s6: 4rem;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    line-height: 1.6;
+  }
+
+  header { padding: var(--s3) 6vw; display: flex; justify-content: space-between; align-items: center; }
+  .logo { color: var(--yellow); font-weight: 800; font-size: 1.05rem; text-decoration: none; }
+
+  section { padding: var(--s5) 6vw var(--s6); max-width: 800px; margin: 0 auto; }
+  h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    text-transform: uppercase;
+    margin: 0 0 var(--s3);
+    text-align: center;
+  }
+
+  /* Passwort-Box Styling */
+  #auth-box {
+    background: var(--panel);
+    border-top: 5px solid var(--yellow);
+    padding: var(--s4);
+    text-align: center;
+    max-width: 400px;
+    margin: 4rem auto;
+  }
+  #auth-box input {
+    width: 100%;
+    padding: 0.75rem;
+    margin: var(--s2) 0;
+    background: var(--bg);
+    border: 1px solid var(--muted);
+    color: var(--text);
+    font-size: 1rem;
+    border-radius: 4px;
+  }
+  .btn {
+    display: inline-block;
+    background: var(--yellow);
+    color: #111;
+    font-weight: 800;
+    font-size: 1.15rem;
+    padding: var(--s2) var(--s4);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transform: skewX(-6deg);
+    width: 100%;
+  }
+  .btn:active { transform: skewX(-6deg) scale(.97); }
+
+  /* Versteckter Lösungsbereich */
+  #content-box { display: none; }
+  
+  .solution-card {
+    background: var(--panel);
+    border-left: 5px solid var(--yellow);
+    padding: var(--s3);
+    margin-bottom: var(--s3);
+  }
+  .solution-card h3 {
+    font-family: var(--display);
+    margin-top: 0;
+    color: var(--yellow);
+  }
+  
+  footer { text-align: center; color: var(--muted); font-size: .85rem; padding: var(--s4) 6vw var(--s5); }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="index.html">MEINE-SPIELE</a>
+  <nav style="display: flex; gap: 1.5rem;">
+    <a href="index.html" style="color: var(--muted); text-decoration: none; font-weight: 800;">Spiele</a>
+    <a href="loesungen.html" style="color: var(--yellow); text-decoration: none; font-weight: 800;">Lösungen</a>
+  </nav>
+</header>
+
+<section>
+  <!-- Passwort Abfrage -->
+  <div id="auth-box">
+    <h3>Passwortgeschützt</h3>
+    <p style="color: var(--muted); font-size: 0.9rem;">Bitte gib das Passwort ein, um die Lösungen zu sehen.</p>
+    <form onsubmit="checkPassword(event)">
+      <input type="password" id="password-input" placeholder="Passwort eingeben..." required>
+      <button type="submit" class="btn">Entsperren</button>
+    </form>
+    <p id="error-msg" style="color: #ff4d4d; margin-top: 1rem; display: none; font-size: 0.9rem;">Falsches Passwort!</p>
+  </div>
+
+  <!-- Eigentlicher Lösungsbereich (wird erst nach Passwort-Eingabe sichtbar) -->
+  <div id="content-box">
+    <h1>Lösungen</h1>
+    <p class="sub" style="color: var(--yellow); font-weight: 800; text-align: center; margin-bottom: var(--s4);">Übersicht aller Lösungswege</p>
+
+    <div class="solution-card">
+      <h3>01. Museum Escape</h3>
+      <p><strong>Lösungsweg:</strong> Gehe zuerst in den rechten Raum, nimm den Schlüssel und gib als Code <em>4812</em> ein.</p>
+    </div>
+
+    <div class="solution-card">
+      <h3>02. Greifarm</h3>
+      <p><strong>Lösungsweg:</strong> Die Formel lautet Kraft mal Lastarm. Die korrekten Zwischenergebnisse sind 12 N, 25 N und 42 N.</p>
+    </div>
+
+    <div class="solution-card">
+      <h3>03. Schatzkarte</h3>
+      <p><strong>Lösungsweg:</strong> Starte bei -5, gehe 3,5 Schritte nach Norden (plus) und kreuze bei -1,2 ab.</p>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 Meine Spiele</footer>
+
+<script>
+  function checkPassword(event) {
+    event.preventDefault();
+    const input = document.getElementById('password-input').value;
+    
+    // HIER DEIN PASSWORT ÄNDERN:
+    const correctPassword = "passwort"; 
+
+    if (input === correctPassword) {
+      document.getElementById('auth-box').style.display = 'none';
+      document.getElementById('content-box').style.display = 'block';
+    } else {
+      const err = document.getElementById('error-msg');
+      err.style.display = 'block';
+      document.getElementById('password-input').value = '';
+    }
+  }
+</script>
+
+</body>
+</html>

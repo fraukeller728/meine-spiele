@@ -125,9 +125,14 @@
 </head>
 <body>
 
-<header>
-  <a class="logo" href="#">MEINE-SPIELE</a>
+<header style="display: flex; justify-content: space-between; align-items: center;">
+  <a class="logo" href="index.html">MEINE-SPIELE</a>
+  <nav style="display: flex; gap: 1.5rem;">
+    <a href="index.html" style="color: var(--yellow); text-decoration: none; font-weight: 800;">Spiele</a>
+    <a href="loesungen.html" style="color: var(--muted); text-decoration: none; font-weight: 800; transition: color 0.2s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">Lösungen</a>
+  </nav>
 </header>
+
 
 <div class="hero">
   <h1>Bereit zum Spielen?</h1>
