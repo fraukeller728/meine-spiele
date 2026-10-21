@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulation: Füllhöhe in Abhängigkeit vom Volumen</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f7f6;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    select, button, input {
+      padding: 8px 12px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .simulation-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+    .box {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      background-color: #fff;
+    }
+    .table-container {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    table {
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #abceea;
+      padding: 8px 15px;
+      text-align: center;
+    }
+    th {
+      background-color: #e8f4f8;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Füllhöhe in Abhängigkeit vom Volumen</h1>
+
+  <div class="controls">
+    <label for="vesselSelect"><strong>Gefäß wählen:</strong></label>
+    <select id="vesselSelect">
+      <option value="cylinder_high">Zylinder hoch (Versuch)</option>
+      <option value="cylinder_wide">Zylinder breit (Anwendung 3)</option>
+      <option value="cone">Martiniglas / Trichter (Anwendung 1)</option>
+      <option value="flask">Erlenmeyerkolben (Anwendung 2)</option>
+    </select>
+
+    <button id="addWaterBtn">+ 50 ml eingießen</button>
+    <button id="resetBtn">Leeren</button>
+
+    <label for="volumeSlider"><strong>Volumen (V):</strong></label>
+    <input type="range" id="volumeSlider" min="0" max="300" value="0" step="1">
+    <span id="volumeValue">0 ml</span>
+  </div>
+
+  <div class="simulation-container">
+    <div class="box">
+      <h3>Gefäß mit Lineal</h3>
+      <canvas id="vesselCanvas" width="270" height="350"></canvas>
+    </div>
+    <div class="box">
+      <h3>Koordinatensystem (Graph)</h3>
+      <canvas id="graphCanvas" width="400" height="350"></canvas>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="box">
+      <h3>Wertetabelle</h3>
+      <table id="dataTable">
+        <tr>
+          <th>Volumen (ml)</th>
+          <td>0</td><td>50</td><td>100</td><td>150</td><td>200</td><td>250</td><td>300</td>
+        </tr>
+        <tr>
+          <th>Füllhöhe (mm)</th>
+          <td id="h0">0</td><td id="h50">-</td><td id="h100">-</td><td id="h150">-</td><td id="h200">-</td><td id="h250">-</td><td id="h300">-</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const vesselCanvas = document.getElementById('vesselCanvas');
+    const ctxVessel = vesselCanvas.getContext('2d');
+
+    const graphCanvas = document.getElementById('graphCanvas');
+    const ctxGraph = graphCanvas.getContext('2d');
+
+    const vesselSelect = document.getElementById('vesselSelect');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const volumeValue = document.getElementById('volumeValue');
+    const addWaterBtn = document.getElementById('addWaterBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let currentV = 0; // in ml (max 300)
+    const maxV = 300;
+    const maxH_mm = 150; // max Füllhöhe in mm für Skalierung
+
+    // Radiusfunktion r(y) in Bildpunkten von unten (y=0) nach oben (y=H_px)
+    function getRadius(type, yRatio) {
+      if (type === 'cylinder_high') {
+        return 40;
+      } else if (type === 'cylinder_wide') {
+        return 70;
+      } else if (type === 'cone') {
+        return 10 + yRatio * 75;
+      } else if (type === 'flask') {
+        if (yRatio < 0.7) {
+          return 70 - yRatio * 60;
+        } else {
+          return 28;
+        }
+      }
+      return 40;
+    }
+
+    // Funktion zur Berechnung der Höhe (in mm) basierend auf Volumen (in ml)
+    function calculateHeight(v, type) {
+      if (v === 0) return 0;
+      let steps = 300;
+      let targetVolRatio = v / maxV;
+      
+      let totalVol = 0;
+      for (let i = 0; i < steps; i++) {
+        let r = getRadius(type, i / steps);
+        totalVol += Math.PI * r * r;
+      }
+
+      let currentVol = 0;
+      let hRatio = 0;
+      for (let i = 0; i < steps; i++) {
+        let r = getRadius(type, i / steps);
+        let dVol = Math.PI * r * r;
+        if ((currentVol + dVol) / totalVol >= targetVolRatio) {
+          hRatio = (i + (targetVolRatio * totalVol - currentVol) / dVol) / steps;
+          break;
+        }
+        currentVol += dVol;
+        hRatio = 1;
+      }
+      return hRatio * maxH_mm;
+    }
+
+    function drawVessel() {
+      ctxVessel.clearRect(0, 0, vesselCanvas.width, vesselCanvas.height);
+      const type = vesselSelect.value;
+
+      const bottomY = 300;
+      const heightPx = 220;
+      const centerX = 90; // Etwas nach links verschoben für Platz rechts fürs Lineal
+
+      const currentH_mm = calculateHeight(currentV, type);
+      const fillRatio = currentH_mm / maxH_mm;
+
+      // 1. Wasser zeichnen
+      ctxVessel.fillStyle = 'rgba(52, 152, 219, 0.7)';
+      ctxVessel.beginPath();
+      let fillSteps = Math.floor(heightPx * fillRatio);
+      for (let i = 0; i <= fillSteps; i++) {
+        let yRatio = i / heightPx;
+        let r = getRadius(type, yRatio);
+        let y = bottomY - i;
+        if (i === 0) ctxVessel.moveTo(centerX - r, y);
+        else ctxVessel.lineTo(centerX - r, y);
+      }
+      for (let i = fillSteps; i >= 0; i--) {
+        let yRatio = i / heightPx;
+        let r = getRadius(type, yRatio);
+        let y = bottomY - i;
+        ctxVessel.lineTo(centerX + r, y);
+      }
+      ctxVessel.closePath();
+      ctxVessel.fill();
+
+      // Wasseroberfläche
+      let topY = bottomY - heightPx * fillRatio;
+      if (currentV > 0) {
+        let topR = getRadius(type, fillRatio);
+        ctxVessel.beginPath();
+        ctxVessel.ellipse(centerX, topY, topR, 4, 0, 0, 2 * Math.PI);
+        ctxVessel.fillStyle = 'rgba(41, 128, 185, 0.9)';
+        ctxVessel.fill();
+      }
+
+      // 2. Gefäßkontur zeichnen
+      ctxVessel.strokeStyle = '#333';
+      ctxVessel.lineWidth = 3;
+      ctxVessel.beginPath();
+      for (let i = 0; i <= heightPx; i++) {
+        let yRatio = i / heightPx;
+        let r = getRadius(type, yRatio);
+        let y = bottomY - i;
+        if (i === 0) ctxVessel.moveTo(centerX - r, y);
+        else ctxVessel.lineTo(centerX - r, y);
+      }
+      for (let i = heightPx; i >= 0; i--) {
+        let yRatio = i / heightPx;
+        let r = getRadius(type, yRatio);
+        let y = bottomY - i;
+        ctxVessel.lineTo(centerX + r, y);
+      }
+      ctxVessel.closePath();
+      ctxVessel.stroke();
+
+      // 3. Lineal rechts daneben zeichnen
+      const rulerX = 180;
+      ctxVessel.strokeStyle = '#555';
+      ctxVessel.lineWidth = 1;
+      ctxVessel.beginPath();
+      ctxVessel.moveTo(rulerX, bottomY);
+      ctxVessel.lineTo(rulerX, bottomY - heightPx);
+      ctxVessel.stroke();
+
+      ctxVessel.fillStyle = '#000';
+      ctxVessel.font = '10px Arial';
+      for (let mm = 0; mm <= maxH_mm; mm += 10) {
+        let y = bottomY - (mm / maxH_mm) * heightPx;
+        let tickLen = (mm % 50 === 0) ? 10 : 5;
+        ctxVessel.beginPath();
+        ctxVessel.moveTo(rulerX, y);
+        ctxVessel.lineTo(rulerX + tickLen, y);
+        ctxVessel.stroke();
+        if (mm % 50 === 0) {
+          ctxVessel.fillText(mm + " mm", rulerX + 12, y + 3);
+        }
+      }
+
+      // 4. Ablesehilfe (Hilfslinie + Wert am Lineal bei aktuellem Füllstand)
+      if (currentV > 0) {
+        ctxVessel.strokeStyle = '#e74c3c';
+        ctxVessel.lineWidth = 1.5;
+        ctxVessel.setLineDash([4, 3]);
+        ctxVessel.beginPath();
+        ctxVessel.moveTo(centerX, topY);
+        ctxVessel.lineTo(rulerX, topY);
+        ctxVessel.stroke();
+        ctxVessel.setLineDash([]); // Zurücksetzen
+
+        // Textfeld für den abgelesenen Wert
+        ctxVessel.fillStyle = '#e74c3c';
+        ctxVessel.font = 'bold 12px Arial';
+        ctxVessel.fillText(Math.round(currentH_mm) + " mm", rulerX + 15, topY + 4);
+      }
+    }
+
+    function drawGraph() {
+      ctxGraph.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+
+      const type = vesselSelect.value;
+      const originX = 50;
+      const originY = 300;
+      const graphWidth = 320;
+      const graphHeight = 250;
+
+      // Gitter zeichnen
+      ctxGraph.strokeStyle = '#e0e0e0';
+      ctxGraph.lineWidth = 1;
+      for (let x = 0; x <= graphWidth; x += 32) {
+        ctxGraph.beginPath();
+        ctxGraph.moveTo(originX + x, originY);
+        ctxGraph.lineTo(originX + x, originY - graphHeight);
+        ctxGraph.stroke();
+      }
+      for (let y = 0; y <= graphHeight; y += 25) {
+        ctxGraph.beginPath();
+        ctxGraph.moveTo(originX, originY - y);
+        ctxGraph.lineTo(originX + graphWidth, originY - y);
+        ctxGraph.stroke();
+      }
+
+      // Achsen mit Pfeilen zeichnen
+      const arrowSize = 8;
+      const xAxisEnd = originX + graphWidth + 15;
+      const yAxisEnd = originY - graphHeight - 15;
+
+      ctxGraph.strokeStyle = '#000';
+      ctxGraph.lineWidth = 2;
+      ctxGraph.fillStyle = '#000';
+
+      // x-Achse
+      ctxGraph.beginPath();
+      ctxGraph.moveTo(originX, originY);
+      ctxGraph.lineTo(xAxisEnd, originY);
+      ctxGraph.stroke();
+
+      ctxGraph.beginPath();
+      ctxGraph.moveTo(xAxisEnd, originY);
+      ctxGraph.lineTo(xAxisEnd - arrowSize, originY - arrowSize / 2);
+      ctxGraph.lineTo(xAxisEnd - arrowSize, originY + arrowSize / 2);
+      ctxGraph.closePath();
+      ctxGraph.fill();
+
+      // y-Achse
+      ctxGraph.beginPath();
+      ctxGraph.moveTo(originX, originY);
+      ctxGraph.lineTo(originX, yAxisEnd);
+      ctxGraph.stroke();
+
+      ctxGraph.beginPath();
+      ctxGraph.moveTo(originX, yAxisEnd);
+      ctxGraph.lineTo(originX - arrowSize / 2, yAxisEnd + arrowSize);
+      ctxGraph.lineTo(originX + arrowSize / 2, yAxisEnd + arrowSize);
+      ctxGraph.closePath();
+      ctxGraph.fill();
+
+      // Achsenbeschriftung
+      ctxGraph.font = '12px Arial';
+      ctxGraph.fillText("V (ml)", originX + graphWidth - 10, originY + 25);
+      ctxGraph.fillText("h (mm)", originX - 40, originY - graphHeight - 5);
+
+      // Skalierung Werte
+      for (let v = 0; v <= maxV; v += 50) {
+        let x = originX + (v / maxV) * graphWidth;
+        ctxGraph.fillText(v, x - 8, originY + 15);
+      }
+      for (let h = 0; h <= maxH_mm; h += 50) {
+        let y = originY - (h / maxH_mm) * graphHeight;
+        ctxGraph.fillText(h, originX - 30, y + 4);
+      }
+
+      // Graph bis zum aktuellen Volumen zeichnen
+      ctxGraph.strokeStyle = '#e74c3c';
+      ctxGraph.lineWidth = 3;
+      ctxGraph.beginPath();
+      for (let v = 0; v <= currentV; v += 1) {
+        let h = calculateHeight(v, type);
+        let x = originX + (v / maxV) * graphWidth;
+        let y = originY - (h / maxH_mm) * graphHeight;
+        if (v === 0) ctxGraph.moveTo(x, y);
+        else ctxGraph.lineTo(x, y);
+      }
+      ctxGraph.stroke();
+
+      // Aktueller Punkt auf dem Graph
+      if (currentV > 0) {
+        let curH = calculateHeight(currentV, type);
+        let curX = originX + (currentV / maxV) * graphWidth;
+        let curY = originY - (curH / maxH_mm) * graphHeight;
+
+        ctxGraph.fillStyle = '#e74c3c';
+        ctxGraph.beginPath();
+        ctxGraph.arc(curX, curY, 5, 0, 2 * Math.PI);
+        ctxGraph.fill();
+      }
+    }
+
+    function updateTable() {
+      const type = vesselSelect.value;
+      const steps = [0, 50, 100, 150, 200, 250, 300];
+      steps.forEach(v => {
+        const cell = document.getElementById('h' + v);
+        if (v <= currentV) {
+          cell.innerText = Math.round(calculateHeight(v, type));
+          cell.style.color = "#e74c3c";
+          cell.style.fontWeight = "bold";
+        } else {
+          cell.innerText = "-";
+          cell.style.color = "#333";
+          cell.style.fontWeight = "normal";
+        }
+      });
+    }
+
+    function updateAll() {
+      volumeValue.innerText = currentV + " ml";
+      volumeSlider.value = currentV;
+      drawVessel();
+      drawGraph();
+      updateTable();
+    }
+
+    // Event Listener
+    volumeSlider.addEventListener('input', (e) => {
+      currentV = parseInt(e.target.value);
+      updateAll();
+    });
+
+    addWaterBtn.addEventListener('click', () => {
+      currentV = Math.min(maxV, currentV + 50);
+      updateAll();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      currentV = 0;
+      updateAll();
+    });
+
+    vesselSelect.addEventListener('change', () => {
+      currentV = 0;
+      updateAll();
+    });
+
+    // Initialisierung
+    updateAll();
+  </script>
+</body>
+</html>
